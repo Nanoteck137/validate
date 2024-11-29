@@ -1,9 +1,6 @@
-# ozzo-validation
+# validate
 
-[![GoDoc](https://godoc.org/github.com/go-ozzo/ozzo-validation?status.png)](http://godoc.org/github.com/go-ozzo/ozzo-validation)
-[![Build Status](https://travis-ci.org/go-ozzo/ozzo-validation.svg?branch=master)](https://travis-ci.org/go-ozzo/ozzo-validation)
-[![Coverage Status](https://coveralls.io/repos/github/go-ozzo/ozzo-validation/badge.svg?branch=master)](https://coveralls.io/github/go-ozzo/ozzo-validation?branch=master)
-[![Go Report](https://goreportcard.com/badge/github.com/go-ozzo/ozzo-validation)](https://goreportcard.com/report/github.com/go-ozzo/ozzo-validation)
+Fork of [ozzo-validation](https://github.com/go-ozzo/ozzo-validation)
 
 ## Description
 
@@ -701,3 +698,5 @@ Below is the whole list of the rules provided by the `is` package:
 ## Credits
 
 The `is` sub-package wraps the excellent validators provided by the [govalidator](https://github.com/asaskevich/govalidator) package.
+
+This is a fork of [ozzo-validation](https://github.com/go-ozzo/ozzo-validation) and all credit goes to the original creator
