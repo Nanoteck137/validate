@@ -1,4 +1,4 @@
-package validation_test
+package validate_test
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/nanoteck137/validate"
+	"github.com/nanoteck137/validate/is"
 )
 
 type Address struct {
@@ -25,28 +25,28 @@ type Customer struct {
 }
 
 func (a Address) Validate() error {
-	return validation.ValidateStruct(&a,
+	return validate.ValidateStruct(&a,
 		// Street cannot be empty, and the length must between 5 and 50
-		validation.Field(&a.Street, validation.Required, validation.Length(5, 50)),
+		validate.Field(&a.Street, validate.Required, validate.Length(5, 50)),
 		// City cannot be empty, and the length must between 5 and 50
-		validation.Field(&a.City, validation.Required, validation.Length(5, 50)),
+		validate.Field(&a.City, validate.Required, validate.Length(5, 50)),
 		// State cannot be empty, and must be a string consisting of two letters in upper case
-		validation.Field(&a.State, validation.Required, validation.Match(regexp.MustCompile("^[A-Z]{2}$"))),
+		validate.Field(&a.State, validate.Required, validate.Match(regexp.MustCompile("^[A-Z]{2}$"))),
 		// State cannot be empty, and must be a string consisting of five digits
-		validation.Field(&a.Zip, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{5}$"))),
+		validate.Field(&a.Zip, validate.Required, validate.Match(regexp.MustCompile("^[0-9]{5}$"))),
 	)
 }
 
 func (c Customer) Validate() error {
-	return validation.ValidateStruct(&c,
+	return validate.ValidateStruct(&c,
 		// Name cannot be empty, and the length must be between 5 and 20.
-		validation.Field(&c.Name, validation.Required, validation.Length(5, 20)),
+		validate.Field(&c.Name, validate.Required, validate.Length(5, 20)),
 		// Gender is optional, and should be either "Female" or "Male".
-		validation.Field(&c.Gender, validation.In("Female", "Male")),
+		validate.Field(&c.Gender, validate.In("Female", "Male")),
 		// Email cannot be empty and should be in a valid email format.
-		validation.Field(&c.Email, validation.Required, is.Email),
+		validate.Field(&c.Email, validate.Required, is.Email),
 		// Validate Address using its own validation rules
-		validation.Field(&c.Address),
+		validate.Field(&c.Address),
 	)
 }
 
@@ -70,9 +70,9 @@ func Example() {
 
 func Example_second() {
 	data := "example"
-	err := validation.Validate(data,
-		validation.Required,       // not empty
-		validation.Length(5, 100), // length between 5 and 100
+	err := validate.Validate(data,
+		validate.Required,       // not empty
+		validate.Length(5, 100), // length between 5 and 100
 		is.URL,                    // is a valid URL
 	)
 	fmt.Println(err)
@@ -86,7 +86,7 @@ func Example_third() {
 		{Street: "123 Main St", City: "Vienna", State: "VA", Zip: "12345"},
 		{City: "Unknown", State: "NC", Zip: "123"},
 	}
-	err := validation.Validate(addresses)
+	err := validate.Validate(addresses)
 	fmt.Println(err)
 	// Output:
 	// 0: (City: cannot be blank; Street: cannot be blank.); 2: (Street: cannot be blank; Zip: must be in a valid format.).
@@ -101,10 +101,10 @@ func Example_four() {
 		},
 	}
 
-	err := validation.Errors{
-		"name":  validation.Validate(c.Name, validation.Required, validation.Length(5, 20)),
-		"email": validation.Validate(c.Name, validation.Required, is.Email),
-		"zip":   validation.Validate(c.Address.Zip, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{5}$"))),
+	err := validate.Errors{
+		"name":  validate.Validate(c.Name, validate.Required, validate.Length(5, 20)),
+		"email": validate.Validate(c.Name, validate.Required, is.Email),
+		"zip":   validate.Validate(c.Address.Zip, validate.Required, validate.Match(regexp.MustCompile("^[0-9]{5}$"))),
 	}.Filter()
 	fmt.Println(err)
 	// Output:
@@ -122,9 +122,9 @@ func Example_five() {
 	}
 
 	m := Manager{}
-	err := validation.ValidateStruct(&m,
-		validation.Field(&m.Name, validation.Required),
-		validation.Field(&m.Level, validation.Required),
+	err := validate.ValidateStruct(&m,
+		validate.Field(&m.Name, validate.Required),
+		validate.Field(&m.Level, validate.Required),
 	)
 	fmt.Println(err)
 	// Output:
@@ -135,7 +135,7 @@ type contextKey int
 
 func Example_six() {
 	key := contextKey(1)
-	rule := validation.WithContext(func(ctx context.Context, value interface{}) error {
+	rule := validate.WithContext(func(ctx context.Context, value interface{}) error {
 		s, _ := value.(string)
 		if ctx.Value(key) == s {
 			return nil
@@ -144,10 +144,10 @@ func Example_six() {
 	})
 	ctx := context.WithValue(context.Background(), key, "good sample")
 
-	err1 := validation.ValidateWithContext(ctx, "bad sample", rule)
+	err1 := validate.ValidateWithContext(ctx, "bad sample", rule)
 	fmt.Println(err1)
 
-	err2 := validation.ValidateWithContext(ctx, "good sample", rule)
+	err2 := validate.ValidateWithContext(ctx, "good sample", rule)
 	fmt.Println(err2)
 
 	// Output:
@@ -167,22 +167,22 @@ func Example_seven() {
 		},
 	}
 
-	err := validation.Validate(c,
-		validation.Map(
+	err := validate.Validate(c,
+		validate.Map(
 			// Name cannot be empty, and the length must be between 5 and 20.
-			validation.Key("Name", validation.Required, validation.Length(5, 20)),
+			validate.Key("Name", validate.Required, validate.Length(5, 20)),
 			// Email cannot be empty and should be in a valid email format.
-			validation.Key("Email", validation.Required, is.Email),
+			validate.Key("Email", validate.Required, is.Email),
 			// Validate Address using its own validation rules
-			validation.Key("Address", validation.Map(
+			validate.Key("Address", validate.Map(
 				// Street cannot be empty, and the length must between 5 and 50
-				validation.Key("Street", validation.Required, validation.Length(5, 50)),
+				validate.Key("Street", validate.Required, validate.Length(5, 50)),
 				// City cannot be empty, and the length must between 5 and 50
-				validation.Key("City", validation.Required, validation.Length(5, 50)),
+				validate.Key("City", validate.Required, validate.Length(5, 50)),
 				// State cannot be empty, and must be a string consisting of two letters in upper case
-				validation.Key("State", validation.Required, validation.Match(regexp.MustCompile("^[A-Z]{2}$"))),
+				validate.Key("State", validate.Required, validate.Match(regexp.MustCompile("^[A-Z]{2}$"))),
 				// State cannot be empty, and must be a string consisting of five digits
-				validation.Key("Zip", validation.Required, validation.Match(regexp.MustCompile("^[0-9]{5}$"))),
+				validate.Key("Zip", validate.Required, validate.Match(regexp.MustCompile("^[0-9]{5}$"))),
 			)),
 		),
 	)
